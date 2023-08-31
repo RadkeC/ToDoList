@@ -1,0 +1,10 @@
+.idea
+__pycache__
+venv
+
+.env
+
+consumer.py
+producer.py
+getting_started.ini
+mongo_config.py

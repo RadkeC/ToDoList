@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>To Do List</title>
+
+    <style>
+        .section_content {
+            text-align: center;
+        }
+        .section_menu {
+            text-align: center;
+            width: 300px;
+            display: inline-block;
+        }
+        .section_menu button {
+            margin: 5px 5px 0 5px;
+        }
+        .div_form_fields {
+            text-align: right;
+        }
+
+
+
+
+        .section_messages {
+            margin: 20px;
+            padding: 10px;
+            text-align:center;
+
+            border-style: dashed;
+            border-width: 1px;
+            border-color: #000000;
+            box-sizing: content-box;
+        }
+
+        .section_to_do_list {
+            margin-top: 5px;
+            text-align: left;
+
+            border-style: dashed;
+            border-width: 1px 0 0 0;
+            border-color: #000000;
+            box-sizing: content-box;
+
+        }
+        h1 {
+            text-align: center;
+        }
+
+        .div_buttons {
+            display: inline-block;
+            width: 150px;
+            text-align: right;
+        }
+        .section_to_do_list p {
+            display: inline;
+        }
+
+        .div_new_task {
+            margin: 10px;
+        {
+
+        .task_field {
+            width: 400px;
+        }
+
+
+    </style>
+</head>
+<body>
+    <section class="section_content">
+        <section class="section_menu">
+            {% if content.user %}
+                <h2>Hello, {{content.user}}</h2>
+                <form method="post" name="user_logout_form">
+                    <button type="submit" name="logout_button" value="True">Logout</button>
+                </form>
+                <form method="post" name="user_delete_form">
+                    <button type="submit" name="delete_user_button" value="True">Delete user</button>
+                </form>
+
+            {% else %}
+                <form method="post" name="user_login_form">
+                    <div class="div_form_fields">
+                        <label for="'username">Username: </label>
+                        <input id="'username" type="text" name="username"/>
+                        <br>
+
+                        <label for="password">Password: </label>
+                        <input id="password" type="text" name="password"/>
+                    </div>
+                    <button type="submit" name="login_button" value="True">Log in</button>
+                    <br>
+                    <button name="register_page_button" value="True">Register</button>
+                </form>
+            {% endif %}
+        </section>
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                <section class="section_messages">
+                    <div class=flashes>
+                        {% for message in messages %}
+                            <p>{{ message }}</p>
+                        {% endfor %}
+                    </div>
+                </section>
+            {% endif %}
+        {% endwith %}
+
+        <section class="section_to_do_list">
+            <h1>To Do List</h1>
+            {% if content.user %}
+                <div class="taks_list">
+                    {% for task in content.tasks %}
+                        <div class="task_field">
+                            <form method="post" name="task_buttons_form">
+                            {% if task.done %}
+                                <div class="div_buttons">
+                                    <button type="submit" name="undone_task_button" value="{{task._id}}">Undone</button>
+                                    <button type="submit" name="delete_task_button" value="{{task._id}}">Delete</button>
+                                </div>
+
+                                <s>{{task.task}}</s>
+                            {% else %}
+                                <div class="div_buttons">
+                                    <button type="submit" name="done_task_button" value="{{task._id}}">Done</button>
+                                    <button type="submit" name="delete_task_button" value="{{task._id}}">Delete</button>
+                                </div>
+                                <p>{{task.task}}</p>
+                            {% endif %}
+
+                            </form>
+                        </div>
+                    {% endfor %}
+                    <div class="div_new_task">
+                        <form method="post" name="new_task_form">
+                            <button type="submit" name="add_task_button">Add task</button>
+                            <input class="task_field" type="text" name="task_text" style="width: 600px;" required >
+                        </form>
+                    </div>
+                {% endif %}
+
+            </div>
+        </section>
+    </section>
+
+</body>
+</html>

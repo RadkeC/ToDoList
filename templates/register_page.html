@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Register</title>
+    <style>
+        .section_content {
+            text-align: center;
+        }
+        .section_register {
+            text-align: center;
+            padding: 10px;
+            width: 300px;
+            display: inline-block;
+        }
+        .div_form_fields {
+            text-align: right;
+        }
+        button {
+            margin: 5px 5px 0 5px;
+        }
+
+        .section_messages {
+            margin: 20px;
+            padding: 10px;
+
+            border-style: dashed;
+            border-width: 1px;
+            border-color: #000000;
+            box-sizing: content-box;
+        }
+
+    </style>
+</head>
+<body>
+    <section class="section_content">
+        <section class="section_register">
+            <form method="post" name="user_register_form">
+                <div class="div_form_fields">
+                    <label for="'username">Username: </label>
+                <input id="'username" type="text" name="username"/>
+                <br>
+
+                <label for="password">Password: </label>
+                <input id="password" type="text" name="password"/>
+                </div>
+
+                <button type="submit" name="add_user_button" value="True">Add user</button>
+            </form>
+            <form method="post" action="./">
+                <button type="submit">Back</button>
+            </form>
+        </section>
+
+
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                <section class="section_messages">
+                    <div class=flashes>
+                        {% for message in messages %}
+                            <p>{{ message }}</p>
+                        {% endfor %}
+                    </div>
+                </section>
+            {% endif %}
+        {% endwith %}
+    </section>
+</body>
+</html>
