@@ -8,9 +8,7 @@ from config import env
 
 
 
-# Optional per-message delivery callback (triggered by poll() or flush())
-# when a message has been successfully delivered or permanently
-# failed delivery (after retries).
+# Creating delivery callback for producer
 def delivery_callback(err, msg):
     if err:
         print('ERROR: Message failed delivery: {}'.format(err))
@@ -19,8 +17,9 @@ def delivery_callback(err, msg):
             topic=msg.topic(), key=msg.key().decode('utf-8'), value=msg.value().decode('utf-8')))
 
 
+# Create producer function to send messages to broker in choosen topic
 def produce(topic, key, value):
-    # Tekst config
+    # Config
     text_config = {
         #'bootstrap.servers': 'localhost:29092'
         'bootstrap.servers': env('CLOUDKARAFKA_HOSTNAME'),
@@ -29,18 +28,18 @@ def produce(topic, key, value):
         "sasl.username": env('CLOUDKARAFKA_USERNAME'),
         "sasl.password": env('CLOUDKARAFKA_PASSWORD')
     }
-    print(text_config)
 
     # Create Producer instance
     producer = Producer(text_config)
 
+    # Produce message
     producer.produce(topic=env('PREFIX') + topic, key=key, value=dumps(value), callback=delivery_callback)
 
     # Block until the messages are sent.
-    # producer.poll(10000)
     producer.flush()
 
 
+# Consumer function for Users -> for background task
 def consume_users(topic=env('PREFIX') + 'ToDoList_Users'):
     print('Initialized Users background task')
     # Initialize topic
@@ -48,7 +47,7 @@ def consume_users(topic=env('PREFIX') + 'ToDoList_Users'):
     # Get connection to Users table in database
     collection_users = get_database()['Users']
 
-    # Tekst config
+    # Config
     text_config = {
         #'bootstrap.servers': 'localhost:29092',
         'bootstrap.servers': env('CLOUDKARAFKA_HOSTNAME'),
@@ -67,39 +66,45 @@ def consume_users(topic=env('PREFIX') + 'ToDoList_Users'):
     consumer.subscribe([topic])
 
     while True:
-        # Poll for new messages from Kafka and print them.
+        # Poll for new messages from Kafka and procced them
         try:
             waiting_flag = True
             while True:
+                # Wait for new message
                 msg = consumer.poll(0.1)
 
+                # No new messages
                 if msg is None:
-                    # Initial message consumption may take up to
-                    # `session.timeout.ms` for the consumer group to
-                    # rebalance and start consuming
                     if waiting_flag:
                         print("Consumer_users is waiting...")
                         waiting_flag = False
+                # Message error
                 elif msg.error():
                     waiting_flag = True
                     print("ERROR: %s".format(msg.error()))
+                # New message
                 else:
                     waiting_flag = True
+                    # Extract the key and value
                     key = msg.key().decode('utf-8')
                     value = loads(msg.value().decode('utf-8'))
-                    # Extract the (optional) key and value, and print.
-
                     print('Consumer: ', key, value)
+
+                    # Add user case
                     if key == 'add_user':
                         collection_users.insert_one(value)
+                    # Edit user case
                     elif key == 'edit_user':
                         old_user = {"_id": value['old_user']}
                         new_user = {"$set": {value['new_user']}}
                         collection_users.update_one(old_user, new_user)
+                    # Delete user case
                     elif key == 'delete_user':
                         collection_users.delete_one(value)
+                    # Unexpected case
                     else:
                         print('Unknow key: {}'.format(key))
+        # In case of error recreate consumer isntance
         except:
             # Create Consumer instance
             consumer = Consumer(text_config)
