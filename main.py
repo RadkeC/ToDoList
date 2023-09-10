@@ -114,10 +114,9 @@ def register():
             return response
 
 
-if __name__ == '__main__':
-    # Create background tasks with consumer for Users and Tasks
-    scheduler.add_job(id='consume_tasks', func=consume_tasks)
-    scheduler.add_job(id='consume_users', func=consume_users)
-    scheduler.start()
 
-    app.run(debug=True)
+scheduler.add_job(id='consume_tasks', func=consume_tasks)
+scheduler.add_job(id='consume_users', func=consume_users)
+scheduler.start()
+
+app.run(debug=True)
