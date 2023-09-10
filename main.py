@@ -12,6 +12,11 @@ app = Flask(__name__)
 app.secret_key = env('SECRET_KEY')
 scheduler = APScheduler()
 
+# Create background tasks with consumer for Users and Tasks
+scheduler.add_job(id='consume_tasks', func=consume_tasks)
+scheduler.add_job(id='consume_users', func=consume_users)
+scheduler.start()
+
 collection_users = get_database()['Users']
 collection_tasks = get_database()['Tasks']
 
@@ -115,8 +120,8 @@ def register():
 
 
 
-scheduler.add_job(id='consume_tasks', func=consume_tasks)
-scheduler.add_job(id='consume_users', func=consume_users)
-scheduler.start()
 
-app.run(debug=True)
+if __name__ == '__main__':
+
+
+    app.run(debug=True)
